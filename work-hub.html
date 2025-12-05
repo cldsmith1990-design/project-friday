@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work Hub – Operations Center</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    :focus-visible { outline: 2px solid #6366f1; outline-offset: 4px; }
+    body:not(:defined) { opacity: 0; transition: opacity 0.2s ease-in; }
+    
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white opacity-100 transition-opacity duration-300">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur border-b border-slate-800">
+    <div class="container mx-auto px-4 py-3 max-w-6xl flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition group">
+        <i data-feather="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+        <span>Back to Dashboard</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <p class="text-xs font-mono text-slate-400 uppercase">Jira Sync: Active</p>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 py-8 max-w-6xl">
+    
+    <!-- Hero Header -->
+    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-indigo-400">
+          <i data-feather="briefcase" class="w-5 h-5"></i>
+          <p class="text-xs font-semibold tracking-wide uppercase">Work Operations Hub</p>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50" id="hub-title">
+          <!-- Populated by JS -->
+        </h1>
+        <p class="text-sm text-slate-300 max-w-2xl" id="hub-desc">
+          <!-- Populated by JS -->
+        </p>
+      </div>
+      
+      <!-- System Status -->
+      <div id="hub-status-container">
+        <!-- Populated by JS -->
+      </div>
+    </header>
+
+    <!-- Key Metrics Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="key-metrics">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Tickets & SOPs -->
+      <section class="lg:col-span-2 space-y-6">
+        
+        <!-- Active Ticket Board -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 flex flex-col overflow-hidden">
+          <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-indigo-300 flex items-center gap-2">
+              <i data-feather="trello"></i>
+              <span>Active Ticket Queue</span>
+            </h2>
+            <div class="flex gap-2">
+              <button class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded transition flex items-center gap-1">
+                <i data-feather="plus" class="w-3 h-3"></i> New Ticket
+              </button>
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto custom-scrollbar p-0">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-950 text-xs uppercase text-slate-400">
+                <tr id="ticket-headers">
+                  <th class="px-6 py-3 font-medium tracking-wider">ID</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Issue / Summary</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Priority</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">SLA Status</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm divide-y divide-slate-800" id="ticket-body">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- SOP Library -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-indigo-300 flex items-center gap-2">
+              <i data-feather="book"></i>
+              <span>SOP Library & Knowledge Base</span>
+            </h2>
+            <div class="relative">
+              <input type="text" placeholder="Search SOPs..." class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 w-48">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="sop-list">
+            <!-- Populated by JS -->
+          </div>
+        </article>
+
+      </section>
+
+      <!-- Right Column: Tasks & Automation -->
+      <aside class="space-y-6">
+
+        <!-- Task Prioritization -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+            <i data-feather="check-circle"></i>
+            <span>Task Priority</span>
+          </h2>
+          <div class="space-y-3" id="task-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Automated Workflows -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="zap"></i>
+            <span>Active Automations</span>
+          </h2>
+          <div class="space-y-4" id="automations">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- External Tools -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="external-link"></i>
+            <span>External Platforms</span>
+          </h2>
+          <div class="flex flex-col gap-2" id="quick-links">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </main>
+
+  <footer class="mt-8 border-t border-slate-800 bg-slate-950/80 py-6 text-center">
+    <p class="text-[11px] text-slate-500">KidCal System Core · Work Hub v1.0</p>
+  </footer>
+
+  <script>
+    // ==========================================
+    // DATA SECTION - WORK HUB
+    // ==========================================
+    
+    const hubData = {
+      title: "Work Hub",
+      description: "Automated IT ticket tracking, SOP management, and task prioritization system.",
+      status: "Online", 
+      
+      // Analytics / Metrics
+      metrics: [
+        { label: "Open Tickets", value: "12", color: "text-white" },
+        { label: "SLA Breaches", value: "0", color: "text-emerald-300" },
+        { label: "Pending Tasks", value: "8", color: "text-indigo-300" },
+        { label: "Avg Resolution", value: "2.4h", color: "text-amber-300" }
+      ],
+
+      // Ticket Data
+      tickets: [
+        { id: "INC-4029", summary: "VPN Access Failure - Sales Team", priority: "P1 - Critical", sla: "2h Remaining", status: "Active" },
+        { id: "REQ-3310", summary: "New Hire Onboarding (J. Doe)", priority: "P2 - High", sla: "On Track", status: "In Progress" },
+        { id: "INC-4025", summary: "Printer Jam - 4th Floor", priority: "P3 - Normal", sla: "Paused", status: "Waiting" },
+        { id: "REQ-3308", summary: "Software License Renewal", priority: "P3 - Normal", sla: "On Track", status: "New" },
+        { id: "INC-4011", summary: "Outlook Sync Error", priority: "P2 - High", sla: "Overdue", status: "Escalated" },
+      ],
+
+      // SOP Library
+      sops: [
+        { title: "VPN Troubleshooting Guide", category: "Connectivity", updated: "Dec 1" },
+        { title: "New User Provisioning", category: "Access Mgmt", updated: "Nov 28" },
+        { title: "Password Reset Protocol", category: "Security", updated: "Oct 15" },
+        { title: "Hardware Procurement", category: "Assets", updated: "Nov 10" },
+      ],
+
+      // Task List
+      tasks: [
+        { text: "Weekly Server Maintenance", due: "Today", urgent: true },
+        { text: "Update Documentation for v2.0", due: "Tomorrow", urgent: false },
+        { text: "Quarterly Security Audit Prep", due: "Dec 15", urgent: false },
+      ],
+
+      // Automation Status
+      automations: [
+        { name: "Ticket Follow-up Bot", status: "Running", detail: "Sends email reminders at 24h inactivity." },
+        { name: "SLA Warning System", status: "Running", detail: "Alerts Slack channel at 1h remaining." },
+        { name: "Task Scheduler", status: "Idle", detail: "Next run: 08:00 AM" }
+      ],
+
+      // External Links
+      links: [
+        { text: "Jira Dashboard", url: "#" },
+        { text: "ServiceNow Portal", url: "#" },
+        { text: "Microsoft Admin Center", url: "#" }
+      ]
+    };
+
+    // ==========================================
+    // RENDER LOGIC
+    // ==========================================
+
+    function renderPage() {
+      // 1. Hero
+      document.getElementById('hub-title').innerText = hubData.title;
+      document.getElementById('hub-desc').innerText = hubData.description;
+      
+      const statusColors = {
+        "Online": "bg-emerald-500/20 text-emerald-200 border-emerald-500/40",
+        "Maintenance": "bg-amber-500/20 text-amber-200 border-amber-500/40"
+      };
+      const statusClass = statusColors[hubData.status] || statusColors["Online"];
+      document.getElementById('hub-status-container').innerHTML = `
+        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${statusClass}">
+          System: ${hubData.status}
+        </span>
+      `;
+
+      // 2. Metrics
+      const metricsHtml = hubData.metrics.map(m => `
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <p class="text-xs text-slate-400 uppercase tracking-wide">${m.label}</p>
+          <p class="text-2xl font-bold ${m.color} mt-1">${m.value}</p>
+        </div>
+      `).join('');
+      document.getElementById('key-metrics').innerHTML = metricsHtml;
+
+      // 3. Tickets Table
+      const priorityColors = {
+        "P1 - Critical": "text-red-300",
+        "P2 - High": "text-amber-300",
+        "P3 - Normal": "text-blue-300"
+      };
+      
+      const slaColors = {
+        "Overdue": "bg-red-500/20 text-red-200",
+        "Paused": "bg-slate-500/20 text-slate-300",
+        "On Track": "bg-emerald-500/20 text-emerald-200",
+        "2h Remaining": "bg-amber-500/20 text-amber-200"
+      };
+
+      const rowsHtml = hubData.tickets.map(t => `
+        <tr class="hover:bg-slate-900/50 transition">
+          <td class="px-6 py-4 font-mono text-xs text-slate-400">${t.id}</td>
+          <td class="px-6 py-4 font-semibold text-white">${t.summary}</td>
+          <td class="px-6 py-4 text-xs font-bold ${priorityColors[t.priority] || 'text-slate-300'}">${t.priority}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider ${slaColors[t.sla] || slaColors['On Track']}">
+              ${t.sla}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <button class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded transition border border-slate-700">
+              Manage
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('ticket-body').innerHTML = rowsHtml;
+
+      // 4. SOP Library
+      const sopsHtml = hubData.sops.map(s => `
+        <div class="p-3 bg-slate-900/40 border border-slate-800 rounded hover:border-indigo-500/50 transition cursor-pointer group">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-feather="file-text" class="w-3 h-3 text-indigo-400 group-hover:text-white transition"></i>
+            <h4 class="text-sm font-medium text-slate-200 group-hover:text-white transition">${s.title}</h4>
+          </div>
+          <div class="flex justify-between items-center text-[10px] text-slate-500">
+            <span>${s.category}</span>
+            <span>Upd: ${s.updated}</span>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('sop-list').innerHTML = sopsHtml;
+
+      // 5. Task List
+      const tasksHtml = hubData.tasks.map(t => `
+        <div class="flex items-start gap-3 p-3 rounded bg-slate-900/40 border border-slate-800">
+          <input type="checkbox" class="mt-1 bg-slate-800 border-slate-600 rounded text-indigo-500 focus:ring-indigo-500">
+          <div class="w-full">
+            <div class="flex justify-between items-start">
+              <span class="text-sm text-slate-300 font-medium">${t.text}</span>
+              ${t.urgent ? '<span class="text-[10px] bg-red-500 text-white px-1.5 rounded">URGENT</span>' : ''}
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Due: ${t.due}</p>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('task-list').innerHTML = tasksHtml;
+
+      // 6. Automations
+      const autoHtml = hubData.automations.map(a => `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full ${a.status === 'Running' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500'}"></div>
+            <div>
+              <p class="text-xs font-semibold text-slate-200">${a.name}</p>
+              <p class="text-[10px] text-slate-500">${a.detail}</p>
+            </div>
+          </div>
+          <i data-feather="refresh-cw" class="w-3 h-3 text-slate-600"></i>
+        </div>
+      `).join('');
+      document.getElementById('automations').innerHTML = autoHtml;
+
+      // 7. Links
+      const linksHtml = hubData.links.map(l => `
+        <a href="${l.url}" class="flex items-center justify-between p-3 rounded bg-slate-900/40 border border-slate-800 hover:bg-slate-800 transition text-sm text-slate-300 hover:text-indigo-300 group">
+          <span>${l.text}</span>
+          <i data-feather="external-link" class="w-3 h-3 group-hover:scale-110 transition-transform"></i>
+        </a>
+      `).join('');
+      document.getElementById('quick-links').innerHTML = linksHtml;
+
+      // Init Icons
+      if (window.feather) feather.replace();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderPage);
+  </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Hub – Master Control</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    :focus-visible { outline: 2px solid #6366f1; outline-offset: 4px; }
+    body:not(:defined) { opacity: 0; transition: opacity 0.2s ease-in; }
+    
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white opacity-100 transition-opacity duration-300">
+
+  <nav class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur border-b border-slate-800">
+    <div class="container mx-auto px-4 py-3 max-w-6xl flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition group">
+        <i data-feather="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+        <span>Back to Dashboard</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <p class="text-xs font-mono text-slate-400 uppercase">System Integrity: 100%</p>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 py-8 max-w-6xl">
+    
+    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-indigo-400">
+          <i data-feather="cpu" class="w-5 h-5"></i>
+          <p class="text-xs font-semibold tracking-wide uppercase">Central Operating System</p>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50" id="hub-title">
+          </h1>
+        <p class="text-sm text-slate-300 max-w-2xl" id="hub-desc">
+          </p>
+      </div>
+      
+      <div id="hub-status-container">
+        </div>
+    </header>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="key-metrics">
+      </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <section class="lg:col-span-2 space-y-6">
+        
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 flex flex-col overflow-hidden">
+          <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-indigo-300 flex items-center gap-2">
+              <i data-feather="server"></i>
+              <span>Core Function Modules</span>
+            </h2>
+            <div class="flex gap-2">
+              <span class="text-[10px] uppercase tracking-wide text-slate-500 mt-1">Auto-Sync Active</span>
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto custom-scrollbar p-0">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-950 text-xs uppercase text-slate-400">
+                <tr id="table-headers">
+                  </tr>
+              </thead>
+              <tbody class="text-sm divide-y divide-slate-800" id="table-body">
+                </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="book-open"></i>
+            <span>System Documentation</span>
+          </h2>
+          <div class="prose prose-invert prose-sm max-w-none text-slate-300" id="strategy-notes">
+            </div>
+        </article>
+
+      </section>
+
+      <aside class="space-y-6">
+
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="code"></i>
+            <span>System Build Progress</span>
+          </h2>
+          <div class="space-y-5" id="progress-bars">
+            </div>
+        </div>
+
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+            <i data-feather="git-merge"></i>
+            <span>Workflow Automations</span>
+          </h2>
+          <div class="space-y-3" id="action-checklist">
+            </div>
+        </div>
+
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="external-link"></i>
+            <span>Launch Sub-Systems</span>
+          </h2>
+          <div class="flex flex-col gap-2" id="quick-links">
+            </div>
+        </div>
+
+      </aside>
+    </div>
+  </main>
+
+  <footer class="mt-8 border-t border-slate-800 bg-slate-950/80 py-6 text-center">
+    <p class="text-[11px] text-slate-500">KidCal System Core · Life Hub v2.4</p>
+  </footer>
+
+  <script>
+    // ==========================================
+    // DATA SECTION - LIFE HUB MASTER CONTROL
+    // ==========================================
+    
+    const hubData = {
+      title: "Life Hub",
+      description: "The central integration platform managing Finance, Family Scheduling, Academic Progress, Work Operations, and Emotional Well-being.",
+      status: "Operational", 
+      
+      // Top row stats (Aggregated from sub-hubs)
+      metrics: [
+        { label: "Active Modules", value: "5 / 5", color: "text-emerald-300" },
+        { label: "Pending Alerts", value: "3", color: "text-amber-300" },
+        { label: "Automation", value: "Active", color: "text-indigo-300" },
+        { label: "Sync Status", value: "Real-time", color: "text-white" }
+      ],
+
+      // The Core Functions Table
+      tableHeaders: ["System Module", "Core Tool", "Key Function", "Sync Status", "Access"],
+      tableRows: [
+        { col1: "Finance Management", col2: "Transaction Log", col3: "Income, Bills, Debt", col4: "Auto-Sync", badge: "green", action: "Open Hub", link: "finance-hub.html" },
+        { col1: "Family Scheduling", col2: "KidCal", col3: "Events & Reminders", col4: "G-Cal Linked", badge: "green", action: "Open Hub", link: "index.html" },
+        { col1: "Academic Progress", col2: "Grade Overview", col3: "Grades & Deadlines", col4: "Canvas Sync", badge: "green", action: "Open Hub", link: "academic-hub.html" },
+        { col1: "Work Operations", col2: "Ticket Manager", col3: "IT Support & SOPs", col4: "Active", badge: "green", action: "Open Hub", link: "work-hub.html" },
+        { col1: "Emotional Well-Being", col2: "Mood Tracker", col3: "Triggers & Mindfulness", col4: "Daily Log", badge: "blue", action: "Open Hub", link: "emotional-hub.html" },
+      ],
+
+      // Build Progress (Tracking the "Task" completion from your prompt)
+      goals: [
+        { label: "Overview & Core Functions", current: 100, max: 100, unit: "%", color: "bg-emerald-500" },
+        { label: "User-Centered Customization", current: 90, max: 100, unit: "%", color: "bg-indigo-500" },
+        { label: "Workflow Automation Logic", current: 85, max: 100, unit: "%", color: "bg-amber-500" },
+        { label: "Cross-Platform Sync Testing", current: 70, max: 100, unit: "%", color: "bg-purple-500" }
+      ],
+
+      // Automation/Workflow Checklist
+      checklist: [
+        { text: "Sync Finance Hub with Bank API", done: true },
+        { text: "Automate KidCal → Google Calendar Push", done: true },
+        { text: "Configure Grade Threshold Alerts (Academic)", done: false },
+        { text: "Set up Mood Trigger Visualization", done: false },
+        { text: "Finalize Cross-Platform Sync Tests", done: false }
+      ],
+
+      // Documentation Text
+      notes: `
+        <h4 class="text-white font-semibold mb-1">Integration Protocol</h4>
+        <p class="mb-3">All sub-hubs are designed to feed into this central dashboard. Reminders are aggregated via the global <code>Utils.js</code> script running on the main index.</p>
+        
+        <h4 class="text-white font-semibold mb-1">Maintenance Schedule</h4>
+        <ul class="list-disc list-inside space-y-1">
+          <li><strong>Weekly:</strong> Review "Pending Alerts" across all hubs.</li>
+          <li><strong>Monthly:</strong> Backup "Transaction Log" and "Grade Overview" data to CSV.</li>
+          <li><strong>Quarterly:</strong> Review SOPs in Work Hub and adjust Debt Strategy in Finance Hub.</li>
+        </ul>
+      `,
+
+      // Quick links to sub-pages
+      links: [
+        { text: "Finance Hub", url: "finance-hub.html" },
+        { text: "Automotive Hub", url: "automotive-hub.html" },
+        { text: "Work Hub", url: "work-hub.html" },
+        { text: "Academic Hub", url: "academic-hub.html" },
+        { text: "Emotional Hub", url: "emotional-hub.html" }
+      ]
+    };
+
+    // ==========================================
+    // RENDER LOGIC
+    // ==========================================
+
+    function renderPage() {
+      // 1. Hero
+      document.getElementById('hub-title').innerText = hubData.title;
+      document.getElementById('hub-desc').innerText = hubData.description;
+      
+      const statusColors = {
+        "Operational": "bg-emerald-500/20 text-emerald-200 border-emerald-500/40",
+        "Maintenance": "bg-amber-500/20 text-amber-200 border-amber-500/40"
+      };
+      const statusClass = statusColors[hubData.status] || statusColors["Operational"];
+      document.getElementById('hub-status-container').innerHTML = `
+        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${statusClass}">
+          System: ${hubData.status}
+        </span>
+      `;
+
+      // 2. Metrics
+      const metricsHtml = hubData.metrics.map(m => `
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <p class="text-xs text-slate-400 uppercase tracking-wide">${m.label}</p>
+          <p class="text-2xl font-bold ${m.color} mt-1">${m.value}</p>
+        </div>
+      `).join('');
+      document.getElementById('key-metrics').innerHTML = metricsHtml;
+
+      // 3. Table
+      const headersHtml = hubData.tableHeaders.map(h => `<th class="px-6 py-3 font-medium tracking-wider">${h}</th>`).join('');
+      document.getElementById('table-headers').innerHTML = headersHtml;
+
+      const badgeColors = {
+        green: "bg-emerald-500/20 text-emerald-200",
+        blue: "bg-indigo-500/20 text-indigo-200",
+        yellow: "bg-amber-500/20 text-amber-200",
+      };
+
+      const rowsHtml = hubData.tableRows.map(row => `
+        <tr class="hover:bg-slate-900/50 transition">
+          <td class="px-6 py-4 font-semibold text-white flex items-center gap-2">
+            ${row.col1}
+          </td>
+          <td class="px-6 py-4 text-slate-300">${row.col2}</td>
+          <td class="px-6 py-4 text-slate-400 font-mono text-xs">${row.col3}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider ${badgeColors[row.badge]}">
+              ${row.col4}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <a href="${row.link}" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded transition border border-slate-700">
+              ${row.action}
+            </a>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('table-body').innerHTML = rowsHtml;
+
+      // 4. Notes
+      document.getElementById('strategy-notes').innerHTML = hubData.notes;
+
+      // 5. Progress Bars
+      const progressHtml = hubData.goals.map(g => {
+        const percent = Math.min((g.current / g.max) * 100, 100);
+        return `
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-300">${g.label}</span>
+              <span class="text-slate-400">${g.current}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2">
+              <div class="${g.color} h-2 rounded-full" style="width: ${percent}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('progress-bars').innerHTML = progressHtml;
+
+      // 6. Checklist
+      const checklistHtml = hubData.checklist.map(item => `
+        <label class="flex items-start gap-3 p-2 rounded hover:bg-slate-900/50 cursor-pointer group">
+          <input type="checkbox" class="mt-1 bg-slate-800 border-slate-600 rounded text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-900" ${item.done ? 'checked' : ''}>
+          <span class="text-sm text-slate-300 group-hover:text-white transition ${item.done ? 'line-through text-slate-500' : ''}">${item.text}</span>
+        </label>
+      `).join('');
+      document.getElementById('action-checklist').innerHTML = checklistHtml;
+
+      // 7. Links
+      const linksHtml = hubData.links.map(l => `
+        <a href="${l.url}" class="flex items-center justify-between p-3 rounded bg-slate-900/40 border border-slate-800 hover:bg-slate-800 transition text-sm text-slate-300 hover:text-indigo-300 group">
+          <span>${l.text}</span>
+          <i data-feather="arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+        </a>
+      `).join('');
+      document.getElementById('quick-links').innerHTML = linksHtml;
+
+      // Init Icons
+      if (window.feather) feather.replace();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderPage);
+  </script>
+</body>
+</html>
