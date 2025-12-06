@@ -7,6 +7,7 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="shared-utils.js"></script>
 
   <style>
     html {
@@ -81,30 +82,39 @@
 
       <aside class="space-y-6">
 
+        <!-- Weather Widget -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-xl font-bold text-sky-300 mb-4 flex items-center gap-2">
+            <i data-feather="cloud"></i>
+            <span>Weather</span>
+          </h2>
+          <div id="weather-widget"></div>
+        </div>
+
         <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
           <h2 class="text-xl font-bold text-indigo-300 mb-4 flex items-center gap-2">
             <i data-feather="zap"></i>
             <span>Quick Actions</span>
           </h2>
           <nav class="space-y-3" aria-label="Quick actions">
-            <a href="/kids.html" class="w-full flex items-center gap-2 bg-indigo-600/30 hover:bg-indigo-500/40 text-indigo-200 font-medium py-2 px-4 rounded-lg transition group">
-              <i data-feather="users" class="group-hover:scale-110 transition-transform"></i>
-              <span>Kids Dashboard</span>
+            <a href="life-hub.html" class="w-full flex items-center gap-2 bg-indigo-600/30 hover:bg-indigo-500/40 text-indigo-200 font-medium py-2 px-4 rounded-lg transition group">
+              <i data-feather="cpu" class="group-hover:scale-110 transition-transform"></i>
+              <span>Life Hub</span>
             </a>
-            
-            <a href="https://chatgpt.com/g/g-p-69321305b5688191a65ef3972ff1a42d-document-scan-hub/project" 
-               target="_blank" 
+
+            <a href="https://chatgpt.com/g/g-p-69321305b5688191a65ef3972ff1a42d-document-scan-hub/project"
+               target="_blank"
                rel="noopener noreferrer"
                class="w-full flex items-center gap-2 bg-emerald-600/30 hover:bg-emerald-500/40 text-emerald-200 font-medium py-2 px-4 rounded-lg transition group">
               <i data-feather="plus" class="group-hover:scale-110 transition-transform"></i>
               <span>Add New Event</span>
             </a>
 
-            <button class="w-full flex items-center gap-2 bg-purple-600/30 hover:bg-purple-500/40 text-purple-200 font-medium py-2 px-4 rounded-lg transition group">
+            <button onclick="toggleGroceryModal()" class="w-full flex items-center gap-2 bg-purple-600/30 hover:bg-purple-500/40 text-purple-200 font-medium py-2 px-4 rounded-lg transition group">
               <i data-feather="shopping-cart" class="group-hover:scale-110 transition-transform"></i>
               <span>Grocery List</span>
             </button>
-            <button class="w-full flex items-center gap-2 bg-amber-600/30 hover:bg-amber-500/40 text-amber-200 font-medium py-2 px-4 rounded-lg transition group">
+            <button onclick="toggleNotesModal()" class="w-full flex items-center gap-2 bg-amber-600/30 hover:bg-amber-500/40 text-amber-200 font-medium py-2 px-4 rounded-lg transition group">
               <i data-feather="file-text" class="group-hover:scale-110 transition-transform"></i>
               <span>Family Notes</span>
             </button>
@@ -117,6 +127,18 @@
             <span>Upcoming Reminders</span>
           </h2>
           <div class="space-y-3" id="reminders"></div>
+        </div>
+
+        <!-- Quick Notes Preview -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-amber-300 flex items-center gap-2">
+              <i data-feather="edit-3"></i>
+              <span>Quick Notes</span>
+            </h2>
+            <button onclick="toggleNotesModal()" class="text-xs text-slate-400 hover:text-white">View All</button>
+          </div>
+          <div id="notes-preview" class="space-y-2"></div>
         </div>
 
       </aside>
@@ -163,15 +185,16 @@
                 </div>
               </div>
               <div class="hidden md:flex items-center gap-3 text-xs">
-                <a href="#" class="px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700 text-slate-200 flex items-center gap-1 hover:bg-slate-800 transition">
-                  <i data-feather="home" class="w-3 h-3"></i><span>Overview</span>
-                </a>
-                <a href="#family-calendar" class="px-3 py-1 rounded-full bg-slate-900/40 border border-slate-700 text-slate-300 hover:bg-slate-800/60 transition flex items-center gap-1">
-                  <i data-feather="clock" class="w-3 h-3"></i><span>Tonight</span>
-                </a>
+                <button onclick="Search.open()" class="px-3 py-1 rounded-full bg-slate-900/40 border border-slate-700 text-slate-300 hover:bg-slate-800/60 transition flex items-center gap-2">
+                  <i data-feather="search" class="w-3 h-3"></i><span>Search</span>
+                  <kbd class="text-[10px] px-1.5 py-0.5 bg-slate-800 rounded">⌘K</kbd>
+                </button>
                 <a href="#hubs-projects" class="px-3 py-1 rounded-full bg-slate-900/40 border border-slate-700 text-slate-300 hover:bg-slate-800/60 transition flex items-center gap-1">
                   <i data-feather="grid" class="w-3 h-3"></i><span>Hubs</span>
                 </a>
+                <button onclick="Theme.toggle(); location.reload();" class="px-3 py-1 rounded-full bg-slate-900/40 border border-slate-700 text-slate-300 hover:bg-slate-800/60 transition flex items-center gap-1">
+                  <i data-feather="moon" class="w-3 h-3"></i>
+                </button>
                 <a href="https://calendar.google.com" target="_blank" rel="noreferrer" class="px-3 py-1 rounded-full bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-500 transition flex items-center gap-1">
                   <i data-feather="external-link" class="w-3 h-3"></i><span>Google Calendar</span>
                 </a>
@@ -349,14 +372,236 @@
       document.getElementById('reminders').innerHTML = html;
     };
 
+    // Weather Widget Render
+    const renderWeather = () => {
+      const weather = Weather.getData();
+      const html = `
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-4xl font-bold text-white">${weather.temp}°F</p>
+            <p class="text-sm text-slate-400">${weather.condition}</p>
+          </div>
+          <i data-feather="${weather.icon}" class="w-12 h-12 text-sky-400"></i>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center mb-4">
+          <div class="bg-slate-800/50 rounded-lg p-2">
+            <p class="text-[10px] text-slate-500">HIGH</p>
+            <p class="text-sm font-bold text-white">${weather.high}°</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-2">
+            <p class="text-[10px] text-slate-500">LOW</p>
+            <p class="text-sm font-bold text-white">${weather.low}°</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-2">
+            <p class="text-[10px] text-slate-500">WIND</p>
+            <p class="text-sm font-bold text-white">${weather.wind}mph</p>
+          </div>
+        </div>
+        <div class="flex justify-between">
+          ${weather.forecast.map(f => `
+            <div class="text-center">
+              <p class="text-[10px] text-slate-500">${f.day}</p>
+              <i data-feather="${f.icon}" class="w-4 h-4 mx-auto my-1 text-slate-400"></i>
+              <p class="text-xs text-white">${f.high}°</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('weather-widget').innerHTML = html;
+    };
+
+    // Notes Preview Render
+    const renderNotesPreview = () => {
+      const notes = Notes.getNotes().slice(0, 3);
+      const container = document.getElementById('notes-preview');
+      if (notes.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-500 text-center py-4">No notes yet. Click "Family Notes" to add one.</p>`;
+      } else {
+        container.innerHTML = notes.map(n => `
+          <div class="p-2 bg-slate-800/50 rounded-lg">
+            <p class="text-xs text-slate-300 line-clamp-2">${n.content}</p>
+            <p class="text-[10px] text-slate-500 mt-1">${new Date(n.createdAt).toLocaleDateString()}</p>
+          </div>
+        `).join('');
+      }
+    };
+
+    // Grocery List Modal
+    let groceryModalOpen = false;
+    const toggleGroceryModal = () => {
+      groceryModalOpen = !groceryModalOpen;
+      let modal = document.getElementById('grocery-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'grocery-modal';
+        document.body.appendChild(modal);
+      }
+      if (groceryModalOpen) {
+        renderGroceryModal();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    };
+
+    const renderGroceryModal = () => {
+      const items = GroceryList.getItems();
+      const modal = document.getElementById('grocery-modal');
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+      modal.innerHTML = `
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="toggleGroceryModal()"></div>
+        <div class="relative w-full max-w-md mx-4 bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl">
+          <div class="flex items-center justify-between p-4 border-b border-slate-700">
+            <h3 class="text-lg font-bold text-purple-300 flex items-center gap-2">
+              <i data-feather="shopping-cart" class="w-5 h-5"></i>
+              Grocery List
+            </h3>
+            <button onclick="toggleGroceryModal()" class="text-slate-400 hover:text-white">
+              <i data-feather="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="grocery-input" placeholder="Add item..."
+                class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                onkeypress="if(event.key==='Enter') addGroceryItem()">
+              <button onclick="addGroceryItem()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm">Add</button>
+            </div>
+            <div class="max-h-64 overflow-y-auto space-y-2" id="grocery-items">
+              ${items.length === 0 ? '<p class="text-center text-slate-500 py-8">No items yet</p>' : items.map(item => `
+                <div class="flex items-center gap-3 p-2 rounded-lg ${item.checked ? 'bg-slate-800/30' : 'bg-slate-800/50'} group">
+                  <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleGroceryItem(${item.id})"
+                    class="w-4 h-4 bg-slate-700 border-slate-600 rounded text-purple-500 focus:ring-purple-500">
+                  <span class="flex-1 text-sm ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.text}</span>
+                  <button onclick="removeGroceryItem(${item.id})" class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100">
+                    <i data-feather="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+            ${items.some(i => i.checked) ? `
+              <button onclick="clearCheckedGroceries()" class="w-full mt-4 py-2 text-sm text-slate-400 hover:text-white border border-slate-700 rounded-lg">
+                Clear Checked Items
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      if (window.feather) feather.replace();
+    };
+
+    const addGroceryItem = () => {
+      const input = document.getElementById('grocery-input');
+      if (input.value.trim()) {
+        GroceryList.addItem(input.value.trim());
+        input.value = '';
+        renderGroceryModal();
+        Notifications.success('Item added to grocery list');
+      }
+    };
+
+    const toggleGroceryItem = (id) => {
+      GroceryList.toggleItem(id);
+      renderGroceryModal();
+    };
+
+    const removeGroceryItem = (id) => {
+      GroceryList.removeItem(id);
+      renderGroceryModal();
+    };
+
+    const clearCheckedGroceries = () => {
+      GroceryList.clearChecked();
+      renderGroceryModal();
+      Notifications.info('Checked items cleared');
+    };
+
+    // Notes Modal
+    let notesModalOpen = false;
+    const toggleNotesModal = () => {
+      notesModalOpen = !notesModalOpen;
+      let modal = document.getElementById('notes-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'notes-modal';
+        document.body.appendChild(modal);
+      }
+      if (notesModalOpen) {
+        renderNotesModal();
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+        renderNotesPreview();
+      }
+    };
+
+    const renderNotesModal = () => {
+      const notes = Notes.getNotes();
+      const modal = document.getElementById('notes-modal');
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+      modal.innerHTML = `
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="toggleNotesModal()"></div>
+        <div class="relative w-full max-w-lg mx-4 bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl">
+          <div class="flex items-center justify-between p-4 border-b border-slate-700">
+            <h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+              <i data-feather="file-text" class="w-5 h-5"></i>
+              Family Notes
+            </h3>
+            <button onclick="toggleNotesModal()" class="text-slate-400 hover:text-white">
+              <i data-feather="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="mb-4">
+              <textarea id="note-input" placeholder="Write a new note..."
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none" rows="3"></textarea>
+              <button onclick="addNote()" class="mt-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm">Save Note</button>
+            </div>
+            <div class="max-h-64 overflow-y-auto space-y-3" id="notes-list">
+              ${notes.length === 0 ? '<p class="text-center text-slate-500 py-8">No notes yet</p>' : notes.map(note => `
+                <div class="p-3 bg-slate-800/50 rounded-lg group">
+                  <p class="text-sm text-slate-300 whitespace-pre-wrap">${note.content}</p>
+                  <div class="flex justify-between items-center mt-2">
+                    <p class="text-[10px] text-slate-500">${new Date(note.createdAt).toLocaleString()}</p>
+                    <button onclick="deleteNote(${note.id})" class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100">
+                      <i data-feather="trash-2" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      if (window.feather) feather.replace();
+    };
+
+    const addNote = () => {
+      const input = document.getElementById('note-input');
+      if (input.value.trim()) {
+        Notes.addNote(input.value.trim());
+        input.value = '';
+        renderNotesModal();
+        Notifications.success('Note saved');
+      }
+    };
+
+    const deleteNote = (id) => {
+      Notes.deleteNote(id);
+      renderNotesModal();
+      Notifications.info('Note deleted');
+    };
+
     // Initialize Application
     document.addEventListener("DOMContentLoaded", () => {
       renderCalendar();
       renderMembers();
       renderHubs();
       renderReminders();
-      
-      Utils.refreshIcons(); 
+      renderWeather();
+      renderNotesPreview();
+
+      Utils.refreshIcons();
     });
 
   </script>

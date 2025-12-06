@@ -6,44 +6,469 @@
   <title>Academic Hub – Grade Tracking</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="shared-utils.js"></script>
   <style>
     html { scroll-behavior: smooth; }
     :focus-visible { outline: 2px solid #6366f1; outline-offset: 4px; }
+    body:not(:defined) { opacity: 0; transition: opacity 0.2s ease-in; }
+
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white">
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white opacity-100 transition-opacity duration-300">
+
   <nav class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur border-b border-slate-800">
     <div class="container mx-auto px-4 py-3 max-w-6xl flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition group">
         <i data-feather="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
         <span>Back to Dashboard</span>
       </a>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <p class="text-xs font-mono text-slate-400 uppercase">Canvas Sync: Active</p>
+      </div>
     </div>
   </nav>
 
   <main class="container mx-auto px-4 py-8 max-w-6xl">
-    <header class="mb-8">
-      <div class="flex items-center gap-2 text-purple-400 mb-2">
-        <i data-feather="book" class="w-5 h-5"></i>
-        <p class="text-xs font-semibold tracking-wide uppercase">Academic Progress Hub</p>
+
+    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-purple-400">
+          <i data-feather="book-open" class="w-5 h-5"></i>
+          <p class="text-xs font-semibold tracking-wide uppercase">Academic Progress Hub</p>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50" id="hub-title"></h1>
+        <p class="text-sm text-slate-300 max-w-2xl" id="hub-desc"></p>
       </div>
-      <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50 mb-2">Academic Hub</h1>
-      <p class="text-sm text-slate-300">Grade tracking, assignment deadlines, and Canvas sync.</p>
+      <div id="hub-status-container"></div>
     </header>
 
-    <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-12 text-center">
-      <i data-feather="tool" class="w-16 h-16 mx-auto mb-4 text-slate-600"></i>
-      <h2 class="text-2xl font-bold text-slate-400 mb-2">Under Construction</h2>
-      <p class="text-slate-500">Academic Hub interface coming soon.</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="key-metrics"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <section class="lg:col-span-2 space-y-6">
+
+        <!-- Current Courses -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-purple-300 flex items-center gap-2">
+              <i data-feather="book"></i>
+              <span>Current Courses</span>
+            </h2>
+            <span class="text-xs text-slate-400">Fall 2024 Semester</span>
+          </div>
+          <div class="space-y-4" id="courses-list"></div>
+        </article>
+
+        <!-- Upcoming Assignments -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 flex flex-col overflow-hidden">
+          <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-purple-300 flex items-center gap-2">
+              <i data-feather="clipboard"></i>
+              <span>Upcoming Assignments</span>
+            </h2>
+            <button class="text-xs bg-purple-600 hover:bg-purple-500 text-white px-3 py-1 rounded transition flex items-center gap-1">
+              <i data-feather="plus" class="w-3 h-3"></i> Add Assignment
+            </button>
+          </div>
+
+          <div class="overflow-x-auto custom-scrollbar p-0">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-950 text-xs uppercase text-slate-400">
+                <tr>
+                  <th class="px-6 py-3 font-medium tracking-wider">Assignment</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Course</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Due Date</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm divide-y divide-slate-800" id="assignments-body"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- Recent Grades -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
+            <i data-feather="award"></i>
+            <span>Recent Grades</span>
+          </h2>
+          <div class="space-y-3" id="recent-grades"></div>
+        </article>
+
+      </section>
+
+      <aside class="space-y-6">
+
+        <!-- GPA Calculator -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
+            <i data-feather="percent"></i>
+            <span>GPA Overview</span>
+          </h2>
+          <div id="gpa-calculator"></div>
+        </div>
+
+        <!-- Study Goals -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="target"></i>
+            <span>Study Goals</span>
+          </h2>
+          <div class="space-y-4" id="study-goals"></div>
+        </div>
+
+        <!-- Study Time Tracker -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+            <i data-feather="clock"></i>
+            <span>Study Time This Week</span>
+          </h2>
+          <div class="space-y-4" id="study-time"></div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="external-link"></i>
+            <span>Quick Links</span>
+          </h2>
+          <div class="flex flex-col gap-2" id="quick-links"></div>
+        </div>
+
+      </aside>
     </div>
   </main>
 
   <footer class="mt-8 border-t border-slate-800 bg-slate-950/80 py-6 text-center">
-    <p class="text-[11px] text-slate-500">Project Friday System · Academic Hub</p>
+    <p class="text-[11px] text-slate-500">Project Friday System · Academic Hub v1.0</p>
   </footer>
 
   <script>
-    if (window.feather) feather.replace();
+    // ==========================================
+    // DATA SECTION - ACADEMIC HUB
+    // ==========================================
+
+    const hubData = {
+      title: "Academic Hub",
+      description: "Grade tracking, assignment management, GPA monitoring, and academic progress for the whole family.",
+      status: "Active",
+
+      metrics: [
+        { label: "Current GPA", value: "3.67", color: "text-purple-300" },
+        { label: "Credits This Sem", value: "12", color: "text-white" },
+        { label: "Assignments Due", value: "4", color: "text-amber-300" },
+        { label: "Completion Rate", value: "94%", color: "text-emerald-300" }
+      ],
+
+      courses: [
+        {
+          code: "PSYC103",
+          name: "Introduction to Psychology",
+          instructor: "Dr. Martinez",
+          currentGrade: 92,
+          letterGrade: "A",
+          credits: 3,
+          progress: 85,
+          color: "bg-purple-500"
+        },
+        {
+          code: "ENGL100",
+          name: "English Composition",
+          instructor: "Prof. Johnson",
+          currentGrade: 88,
+          letterGrade: "B+",
+          credits: 3,
+          progress: 80,
+          color: "bg-blue-500"
+        },
+        {
+          code: "MATH201",
+          name: "Statistics for Social Sciences",
+          instructor: "Dr. Chen",
+          currentGrade: 85,
+          letterGrade: "B",
+          credits: 3,
+          progress: 75,
+          color: "bg-emerald-500"
+        },
+        {
+          code: "CIS110",
+          name: "Introduction to Computers",
+          instructor: "Prof. Williams",
+          currentGrade: 95,
+          letterGrade: "A",
+          credits: 3,
+          progress: 90,
+          color: "bg-amber-500"
+        }
+      ],
+
+      assignments: [
+        { name: "Research Paper Draft", course: "ENGL100", dueDate: "Dec 8", daysLeft: 2, status: "in-progress", priority: "high" },
+        { name: "Chapter 12 Quiz", course: "PSYC103", dueDate: "Dec 10", daysLeft: 4, status: "not-started", priority: "medium" },
+        { name: "Statistics Problem Set 8", course: "MATH201", dueDate: "Dec 12", daysLeft: 6, status: "not-started", priority: "medium" },
+        { name: "Final Project Proposal", course: "CIS110", dueDate: "Dec 15", daysLeft: 9, status: "in-progress", priority: "high" },
+        { name: "Discussion Post Week 14", course: "PSYC103", dueDate: "Dec 7", daysLeft: 1, status: "in-progress", priority: "urgent" }
+      ],
+
+      recentGrades: [
+        { name: "Midterm Exam", course: "PSYC103", grade: 94, maxPoints: 100, date: "Nov 28" },
+        { name: "Essay 3: Analysis", course: "ENGL100", grade: 88, maxPoints: 100, date: "Nov 25" },
+        { name: "Problem Set 7", course: "MATH201", grade: 42, maxPoints: 50, date: "Nov 22" },
+        { name: "Lab Assignment 5", course: "CIS110", grade: 100, maxPoints: 100, date: "Nov 20" }
+      ],
+
+      gpa: {
+        current: 3.67,
+        cumulative: 3.54,
+        targetGPA: 3.75,
+        creditsCompleted: 45,
+        creditsInProgress: 12
+      },
+
+      studyGoals: [
+        { name: "Maintain A in PSYC103", current: 92, target: 90, met: true },
+        { name: "Raise MATH201 to B+", current: 85, target: 87, met: false },
+        { name: "Complete all assignments on time", current: 94, target: 100, met: false },
+        { name: "Study 15 hrs/week", current: 12, target: 15, met: false }
+      ],
+
+      studyTime: [
+        { day: "Mon", hours: 2.5 },
+        { day: "Tue", hours: 1.5 },
+        { day: "Wed", hours: 3.0 },
+        { day: "Thu", hours: 2.0 },
+        { day: "Fri", hours: 1.0 },
+        { day: "Sat", hours: 2.0 },
+        { day: "Sun", hours: 0 }
+      ],
+
+      quickLinks: [
+        { text: "Canvas Dashboard", url: "#", icon: "layout" },
+        { text: "Library Resources", url: "#", icon: "book" },
+        { text: "Academic Calendar", url: "#", icon: "calendar" },
+        { text: "Tutoring Center", url: "#", icon: "users" }
+      ]
+    };
+
+    // ==========================================
+    // RENDER LOGIC
+    // ==========================================
+
+    function getLetterGradeColor(grade) {
+      if (grade >= 90) return "text-emerald-400";
+      if (grade >= 80) return "text-blue-400";
+      if (grade >= 70) return "text-amber-400";
+      return "text-red-400";
+    }
+
+    function getStatusBadge(status, priority) {
+      const statusMap = {
+        "in-progress": { bg: "bg-blue-500/20", text: "text-blue-200", label: "In Progress" },
+        "not-started": { bg: "bg-slate-500/20", text: "text-slate-300", label: "Not Started" },
+        "completed": { bg: "bg-emerald-500/20", text: "text-emerald-200", label: "Completed" }
+      };
+      const priorityColors = {
+        "urgent": "border-red-500/50",
+        "high": "border-amber-500/50",
+        "medium": "border-slate-600"
+      };
+      return { ...statusMap[status], border: priorityColors[priority] || priorityColors.medium };
+    }
+
+    function renderPage() {
+      // 1. Hero
+      document.getElementById('hub-title').innerText = hubData.title;
+      document.getElementById('hub-desc').innerText = hubData.description;
+
+      const statusColors = {
+        "Active": "bg-emerald-500/20 text-emerald-200 border-emerald-500/40",
+        "Break": "bg-amber-500/20 text-amber-200 border-amber-500/40"
+      };
+      const statusClass = statusColors[hubData.status] || statusColors["Active"];
+      document.getElementById('hub-status-container').innerHTML = `
+        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${statusClass}">
+          Semester: ${hubData.status}
+        </span>
+      `;
+
+      // 2. Metrics
+      const metricsHtml = hubData.metrics.map(m => `
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <p class="text-xs text-slate-400 uppercase tracking-wide">${m.label}</p>
+          <p class="text-2xl font-bold ${m.color} mt-1">${m.value}</p>
+        </div>
+      `).join('');
+      document.getElementById('key-metrics').innerHTML = metricsHtml;
+
+      // 3. Courses List
+      const coursesHtml = hubData.courses.map(c => `
+        <div class="bg-slate-900/40 rounded-xl p-4 border border-slate-800 hover:border-purple-500/50 transition">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-mono text-purple-400">${c.code}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300">${c.credits} credits</span>
+              </div>
+              <h3 class="text-sm font-semibold text-white">${c.name}</h3>
+              <p class="text-[11px] text-slate-500">${c.instructor}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold ${getLetterGradeColor(c.currentGrade)}">${c.letterGrade}</p>
+              <p class="text-xs text-slate-400">${c.currentGrade}%</p>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] mb-1">
+              <span class="text-slate-500">Course Progress</span>
+              <span class="text-slate-400">${c.progress}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5">
+              <div class="${c.color} h-1.5 rounded-full" style="width: ${c.progress}%"></div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('courses-list').innerHTML = coursesHtml;
+
+      // 4. Assignments Table
+      const assignmentsHtml = hubData.assignments.map(a => {
+        const badge = getStatusBadge(a.status, a.priority);
+        const urgentClass = a.priority === 'urgent' ? 'bg-red-500/10' : '';
+        return `
+          <tr class="hover:bg-slate-900/50 transition ${urgentClass}">
+            <td class="px-6 py-4">
+              <div>
+                <p class="font-medium text-white">${a.name}</p>
+                ${a.priority === 'urgent' ? '<span class="text-[10px] text-red-400 font-bold">URGENT</span>' : ''}
+              </div>
+            </td>
+            <td class="px-6 py-4 text-xs font-mono text-purple-400">${a.course}</td>
+            <td class="px-6 py-4">
+              <div>
+                <p class="text-sm text-white">${a.dueDate}</p>
+                <p class="text-[10px] ${a.daysLeft <= 2 ? 'text-red-400' : 'text-slate-500'}">${a.daysLeft} day${a.daysLeft !== 1 ? 's' : ''} left</p>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider ${badge.bg} ${badge.text} border ${badge.border}">
+                ${badge.label}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      document.getElementById('assignments-body').innerHTML = assignmentsHtml;
+
+      // 5. Recent Grades
+      const gradesHtml = hubData.recentGrades.map(g => {
+        const percent = (g.grade / g.maxPoints) * 100;
+        return `
+          <div class="flex items-center justify-between p-3 bg-slate-900/40 rounded-lg border border-slate-800">
+            <div>
+              <p class="text-sm font-medium text-white">${g.name}</p>
+              <p class="text-[11px] text-slate-500">${g.course} · ${g.date}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold ${getLetterGradeColor(percent)}">${g.grade}/${g.maxPoints}</p>
+              <p class="text-[10px] text-slate-500">${percent.toFixed(0)}%</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('recent-grades').innerHTML = gradesHtml;
+
+      // 6. GPA Calculator
+      const gpa = hubData.gpa;
+      const gpaHtml = `
+        <div class="text-center mb-4">
+          <p class="text-4xl font-bold text-purple-300">${gpa.current.toFixed(2)}</p>
+          <p class="text-xs text-slate-400">Current Semester GPA</p>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Cumulative GPA</span>
+            <span class="text-sm font-bold text-white">${gpa.cumulative.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Target GPA</span>
+            <span class="text-sm font-bold text-indigo-300">${gpa.targetGPA.toFixed(2)}</span>
+          </div>
+          <div class="border-t border-slate-700 pt-3 mt-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-slate-400">Credits Completed</span>
+              <span class="text-sm font-bold text-white">${gpa.creditsCompleted}</span>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-sm text-slate-400">In Progress</span>
+              <span class="text-sm font-bold text-white">${gpa.creditsInProgress}</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 p-3 bg-slate-800/50 rounded-lg">
+          <p class="text-[11px] text-slate-400 mb-1">GPA Progress to Target</p>
+          <div class="w-full bg-slate-700 rounded-full h-2">
+            <div class="bg-purple-500 h-2 rounded-full" style="width: ${(gpa.current / gpa.targetGPA) * 100}%"></div>
+          </div>
+        </div>
+      `;
+      document.getElementById('gpa-calculator').innerHTML = gpaHtml;
+
+      // 7. Study Goals
+      const goalsHtml = hubData.studyGoals.map(g => `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center ${g.met ? 'bg-emerald-500/20' : 'bg-slate-700'}">
+              <i data-feather="${g.met ? 'check' : 'circle'}" class="w-3 h-3 ${g.met ? 'text-emerald-400' : 'text-slate-500'}"></i>
+            </div>
+            <span class="text-sm ${g.met ? 'text-slate-400 line-through' : 'text-slate-300'}">${g.name}</span>
+          </div>
+          <span class="text-xs ${g.met ? 'text-emerald-400' : 'text-slate-500'}">${g.current}/${g.target}</span>
+        </div>
+      `).join('');
+      document.getElementById('study-goals').innerHTML = goalsHtml;
+
+      // 8. Study Time
+      const totalHours = hubData.studyTime.reduce((sum, d) => sum + d.hours, 0);
+      const maxHours = Math.max(...hubData.studyTime.map(d => d.hours), 1);
+      const studyTimeHtml = `
+        <div class="text-center mb-4">
+          <p class="text-3xl font-bold text-emerald-300">${totalHours}</p>
+          <p class="text-xs text-slate-400">hours this week</p>
+        </div>
+        <div class="flex items-end justify-between gap-1 h-20">
+          ${hubData.studyTime.map(d => `
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-slate-800 rounded-t relative" style="height: ${(d.hours / maxHours) * 100}%">
+                <div class="absolute inset-0 bg-emerald-500/60 rounded-t"></div>
+              </div>
+              <span class="text-[10px] text-slate-500">${d.day}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('study-time').innerHTML = studyTimeHtml;
+
+      // 9. Quick Links
+      const linksHtml = hubData.quickLinks.map(l => `
+        <a href="${l.url}" class="flex items-center gap-2 p-3 rounded bg-slate-900/40 border border-slate-800 hover:bg-slate-800 transition text-sm text-slate-300 hover:text-purple-300 group">
+          <i data-feather="${l.icon}" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+          <span>${l.text}</span>
+        </a>
+      `).join('');
+      document.getElementById('quick-links').innerHTML = linksHtml;
+
+      // Init Icons
+      if (window.feather) feather.replace();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderPage);
   </script>
 </body>
 </html>

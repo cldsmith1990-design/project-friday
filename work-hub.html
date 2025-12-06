@@ -7,6 +7,7 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="shared-utils.js"></script>
 
   <style>
     html { scroll-behavior: smooth; }
@@ -146,6 +147,24 @@
           </div>
         </div>
 
+        <!-- Time Tracking -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-amber-300 mb-4 flex items-center gap-2">
+            <i data-feather="clock"></i>
+            <span>Time Tracking</span>
+          </h2>
+          <div id="time-tracking"></div>
+        </div>
+
+        <!-- Productivity Metrics -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
+            <i data-feather="bar-chart-2"></i>
+            <span>Productivity</span>
+          </h2>
+          <div id="productivity-metrics"></div>
+        </div>
+
         <!-- External Tools -->
         <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
           <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
@@ -219,7 +238,33 @@
         { text: "Jira Dashboard", url: "#" },
         { text: "ServiceNow Portal", url: "#" },
         { text: "Microsoft Admin Center", url: "#" }
-      ]
+      ],
+
+      // Time Tracking
+      timeTracking: {
+        todayHours: 6.5,
+        weekHours: 32.5,
+        weekTarget: 40,
+        currentTask: "VPN Troubleshooting",
+        taskStarted: "2:30 PM",
+        dailyBreakdown: [
+          { day: "Mon", hours: 8.0 },
+          { day: "Tue", hours: 7.5 },
+          { day: "Wed", hours: 8.0 },
+          { day: "Thu", hours: 8.5 },
+          { day: "Fri", hours: 6.5 }
+        ]
+      },
+
+      // Productivity Metrics
+      productivity: {
+        ticketsResolved: { week: 23, month: 87 },
+        avgResponseTime: "1.2h",
+        customerSatisfaction: 94,
+        focusTime: 72,
+        meetingLoad: 28,
+        weeklyTrend: [65, 72, 68, 78, 72, 85, 82]
+      }
     };
 
     // ==========================================
@@ -337,6 +382,107 @@
         </a>
       `).join('');
       document.getElementById('quick-links').innerHTML = linksHtml;
+
+      // 8. Time Tracking
+      const time = hubData.timeTracking;
+      const weekProgress = (time.weekHours / time.weekTarget) * 100;
+      const maxDayHours = Math.max(...time.dailyBreakdown.map(d => d.hours));
+      const timeHtml = `
+        <div class="mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs text-slate-400">Current Task</span>
+            <span class="text-[10px] text-amber-400">Started: ${time.taskStarted}</span>
+          </div>
+          <div class="bg-amber-500/20 border border-amber-500/40 rounded-lg p-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+            <span class="text-sm font-medium text-amber-200">${time.currentTask}</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <p class="text-2xl font-bold text-white">${time.todayHours}h</p>
+            <p class="text-[10px] text-slate-500">Today</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <p class="text-2xl font-bold text-amber-300">${time.weekHours}h</p>
+            <p class="text-[10px] text-slate-500">This Week</p>
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-400">Weekly Target</span>
+            <span class="text-slate-300">${time.weekHours}/${time.weekTarget}h</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2">
+            <div class="bg-amber-500 h-2 rounded-full" style="width: ${weekProgress}%"></div>
+          </div>
+        </div>
+        <div class="flex items-end justify-between gap-1 h-16">
+          ${time.dailyBreakdown.map(d => `
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-slate-800 rounded-t relative" style="height: ${(d.hours / maxDayHours) * 100}%">
+                <div class="absolute inset-0 bg-indigo-500/60 rounded-t"></div>
+              </div>
+              <span class="text-[9px] text-slate-500">${d.day}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('time-tracking').innerHTML = timeHtml;
+
+      // 9. Productivity Metrics
+      const prod = hubData.productivity;
+      const maxTrend = Math.max(...prod.weeklyTrend);
+      const prodHtml = `
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <p class="text-xl font-bold text-emerald-300">${prod.ticketsResolved.week}</p>
+            <p class="text-[10px] text-slate-500">Tickets/Week</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+            <p class="text-xl font-bold text-sky-300">${prod.avgResponseTime}</p>
+            <p class="text-[10px] text-slate-500">Avg Response</p>
+          </div>
+        </div>
+        <div class="space-y-3 mb-4">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">Customer Satisfaction</span>
+              <span class="text-emerald-400">${prod.customerSatisfaction}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5">
+              <div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${prod.customerSatisfaction}%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">Focus Time</span>
+              <span class="text-purple-400">${prod.focusTime}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5">
+              <div class="bg-purple-500 h-1.5 rounded-full" style="width: ${prod.focusTime}%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">Meeting Load</span>
+              <span class="text-amber-400">${prod.meetingLoad}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5">
+              <div class="bg-amber-500 h-1.5 rounded-full" style="width: ${prod.meetingLoad}%"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 mb-2">7-Day Productivity Trend</p>
+          <div class="flex items-end justify-between gap-1 h-12">
+            ${prod.weeklyTrend.map((v, i) => `
+              <div class="flex-1 bg-purple-500/60 rounded-t" style="height: ${(v / maxTrend) * 100}%"></div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      document.getElementById('productivity-metrics').innerHTML = prodHtml;
 
       // Init Icons
       if (window.feather) feather.replace();

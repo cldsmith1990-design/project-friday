@@ -6,44 +6,489 @@
   <title>Emotional Hub – Well-Being Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="shared-utils.js"></script>
   <style>
     html { scroll-behavior: smooth; }
     :focus-visible { outline: 2px solid #6366f1; outline-offset: 4px; }
+    body:not(:defined) { opacity: 0; transition: opacity 0.2s ease-in; }
+
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white">
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white opacity-100 transition-opacity duration-300">
+
   <nav class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur border-b border-slate-800">
     <div class="container mx-auto px-4 py-3 max-w-6xl flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition group">
         <i data-feather="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
         <span>Back to Dashboard</span>
       </a>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+        <p class="text-xs font-mono text-slate-400 uppercase">Daily Check-in: Pending</p>
+      </div>
     </div>
   </nav>
 
   <main class="container mx-auto px-4 py-8 max-w-6xl">
-    <header class="mb-8">
-      <div class="flex items-center gap-2 text-rose-400 mb-2">
-        <i data-feather="heart" class="w-5 h-5"></i>
-        <p class="text-xs font-semibold tracking-wide uppercase">Emotional Well-Being Hub</p>
+
+    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-rose-400">
+          <i data-feather="heart" class="w-5 h-5"></i>
+          <p class="text-xs font-semibold tracking-wide uppercase">Emotional Well-Being Hub</p>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50" id="hub-title"></h1>
+        <p class="text-sm text-slate-300 max-w-2xl" id="hub-desc"></p>
       </div>
-      <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50 mb-2">Emotional Hub</h1>
-      <p class="text-sm text-slate-300">Mood tracking, trigger identification, and mindfulness resources.</p>
+      <div id="hub-status-container"></div>
     </header>
 
-    <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-12 text-center">
-      <i data-feather="tool" class="w-16 h-16 mx-auto mb-4 text-slate-600"></i>
-      <h2 class="text-2xl font-bold text-slate-400 mb-2">Under Construction</h2>
-      <p class="text-slate-500">Emotional Hub interface coming soon.</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="key-metrics"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <section class="lg:col-span-2 space-y-6">
+
+        <!-- Today's Check-in -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-rose-300 flex items-center gap-2">
+              <i data-feather="sun"></i>
+              <span>Today's Check-in</span>
+            </h2>
+            <span class="text-xs text-slate-400" id="current-date"></span>
+          </div>
+          <div id="mood-selector"></div>
+        </article>
+
+        <!-- Mood History -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-rose-300 mb-4 flex items-center gap-2">
+            <i data-feather="activity"></i>
+            <span>Mood History (Last 14 Days)</span>
+          </h2>
+          <div id="mood-history"></div>
+        </article>
+
+        <!-- Journal Entries -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-rose-300 flex items-center gap-2">
+              <i data-feather="edit-3"></i>
+              <span>Journal Entries</span>
+            </h2>
+            <button class="text-xs bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded transition flex items-center gap-1">
+              <i data-feather="plus" class="w-3 h-3"></i> New Entry
+            </button>
+          </div>
+          <div class="space-y-4" id="journal-entries"></div>
+        </article>
+
+        <!-- Triggers & Patterns -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-amber-300 mb-4 flex items-center gap-2">
+            <i data-feather="alert-circle"></i>
+            <span>Triggers & Patterns</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="triggers-patterns"></div>
+        </article>
+
+      </section>
+
+      <aside class="space-y-6">
+
+        <!-- Wellness Streaks -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+            <i data-feather="award"></i>
+            <span>Wellness Streaks</span>
+          </h2>
+          <div class="space-y-4" id="wellness-streaks"></div>
+        </div>
+
+        <!-- Self-Care Checklist -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="check-square"></i>
+            <span>Daily Self-Care</span>
+          </h2>
+          <div class="space-y-3" id="self-care-checklist"></div>
+        </div>
+
+        <!-- Mindfulness Resources -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
+            <i data-feather="wind"></i>
+            <span>Mindfulness</span>
+          </h2>
+          <div class="space-y-3" id="mindfulness-resources"></div>
+        </div>
+
+        <!-- Gratitude List -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-amber-300 mb-4 flex items-center gap-2">
+            <i data-feather="star"></i>
+            <span>Today's Gratitude</span>
+          </h2>
+          <div id="gratitude-list"></div>
+        </div>
+
+      </aside>
     </div>
   </main>
 
   <footer class="mt-8 border-t border-slate-800 bg-slate-950/80 py-6 text-center">
-    <p class="text-[11px] text-slate-500">Project Friday System · Emotional Hub</p>
+    <p class="text-[11px] text-slate-500">Project Friday System · Emotional Hub v1.0</p>
   </footer>
 
   <script>
-    if (window.feather) feather.replace();
+    // ==========================================
+    // DATA SECTION - EMOTIONAL HUB
+    // ==========================================
+
+    const hubData = {
+      title: "Emotional Hub",
+      description: "Mood tracking, journal entries, wellness habits, and mindfulness resources to support your mental well-being.",
+      status: "Check-in Due",
+
+      metrics: [
+        { label: "Current Streak", value: "7 days", color: "text-emerald-300" },
+        { label: "Avg Mood (Week)", value: "7.2/10", color: "text-rose-300" },
+        { label: "Journal Entries", value: "23", color: "text-indigo-300" },
+        { label: "Self-Care Score", value: "85%", color: "text-amber-300" }
+      ],
+
+      moods: [
+        { emoji: "😢", label: "Struggling", value: 2, color: "bg-red-500" },
+        { emoji: "😔", label: "Low", value: 4, color: "bg-orange-500" },
+        { emoji: "😐", label: "Okay", value: 5, color: "bg-amber-500" },
+        { emoji: "🙂", label: "Good", value: 7, color: "bg-lime-500" },
+        { emoji: "😊", label: "Great", value: 8, color: "bg-emerald-500" },
+        { emoji: "😄", label: "Excellent", value: 10, color: "bg-teal-500" }
+      ],
+
+      moodHistory: [
+        { date: "Dec 5", mood: 7, note: "Productive day" },
+        { date: "Dec 4", mood: 8, note: "Good family time" },
+        { date: "Dec 3", mood: 6, note: "Stressful work" },
+        { date: "Dec 2", mood: 7, note: "Exercise helped" },
+        { date: "Dec 1", mood: 5, note: "Tired" },
+        { date: "Nov 30", mood: 8, note: "Great weekend" },
+        { date: "Nov 29", mood: 7, note: "Balanced day" },
+        { date: "Nov 28", mood: 6, note: "Busy" },
+        { date: "Nov 27", mood: 8, note: "Thanksgiving" },
+        { date: "Nov 26", mood: 7, note: "Relaxing" },
+        { date: "Nov 25", mood: 5, note: "Anxious" },
+        { date: "Nov 24", mood: 6, note: "Recovering" },
+        { date: "Nov 23", mood: 7, note: "Better" },
+        { date: "Nov 22", mood: 8, note: "Great progress" }
+      ],
+
+      journalEntries: [
+        {
+          date: "Dec 4, 2024",
+          title: "Quality time with the kids",
+          preview: "Spent the evening playing board games with Cole and Lily. These moments remind me why I work so hard...",
+          mood: "Great",
+          tags: ["family", "gratitude"]
+        },
+        {
+          date: "Dec 2, 2024",
+          title: "Morning run breakthrough",
+          preview: "Finally managed a 5K without stopping. The consistency is paying off. Note to self: early mornings...",
+          mood: "Good",
+          tags: ["exercise", "achievement"]
+        },
+        {
+          date: "Nov 30, 2024",
+          title: "Reflecting on the month",
+          preview: "November was challenging but rewarding. The balance between work, school, and family is getting...",
+          mood: "Thoughtful",
+          tags: ["reflection", "growth"]
+        }
+      ],
+
+      triggers: [
+        { name: "Work Stress", frequency: "High", impact: "negative", occurrences: 8 },
+        { name: "Poor Sleep", frequency: "Medium", impact: "negative", occurrences: 5 },
+        { name: "Family Time", frequency: "High", impact: "positive", occurrences: 12 },
+        { name: "Exercise", frequency: "Medium", impact: "positive", occurrences: 7 }
+      ],
+
+      patterns: [
+        { insight: "Mood tends to dip on Mondays", type: "warning" },
+        { insight: "Exercise improves mood by 23%", type: "positive" },
+        { insight: "Best moods correlate with 7+ hrs sleep", type: "positive" },
+        { insight: "Screen time >3hrs linked to lower mood", type: "warning" }
+      ],
+
+      wellnessStreaks: [
+        { name: "Daily Check-in", current: 7, best: 14, icon: "check-circle", color: "text-emerald-400" },
+        { name: "Exercise", current: 3, best: 10, icon: "activity", color: "text-blue-400" },
+        { name: "Meditation", current: 5, best: 21, icon: "wind", color: "text-purple-400" },
+        { name: "Sleep 7+ hrs", current: 4, best: 12, icon: "moon", color: "text-indigo-400" },
+        { name: "No Alcohol", current: 12, best: 30, icon: "coffee", color: "text-amber-400" }
+      ],
+
+      selfCare: [
+        { task: "Morning stretches", done: true },
+        { task: "Drink 8 glasses of water", done: false },
+        { task: "15 min walk outside", done: true },
+        { task: "Read for 20 minutes", done: false },
+        { task: "Screen-free hour before bed", done: false },
+        { task: "Connect with a friend/family", done: true }
+      ],
+
+      mindfulness: [
+        { name: "5-Minute Breathing", duration: "5 min", type: "Quick Reset" },
+        { name: "Body Scan Meditation", duration: "10 min", type: "Relaxation" },
+        { name: "Gratitude Reflection", duration: "5 min", type: "Positivity" },
+        { name: "Progressive Muscle Relaxation", duration: "15 min", type: "Stress Relief" }
+      ],
+
+      gratitude: [
+        "Healthy kids who make me laugh",
+        "Supportive friends",
+        "A warm home"
+      ]
+    };
+
+    // ==========================================
+    // RENDER LOGIC
+    // ==========================================
+
+    function getMoodColor(mood) {
+      if (mood >= 8) return "bg-emerald-500";
+      if (mood >= 6) return "bg-lime-500";
+      if (mood >= 4) return "bg-amber-500";
+      return "bg-red-500";
+    }
+
+    function getMoodEmoji(mood) {
+      if (mood >= 9) return "😄";
+      if (mood >= 7) return "😊";
+      if (mood >= 5) return "🙂";
+      if (mood >= 3) return "😔";
+      return "😢";
+    }
+
+    function renderPage() {
+      // Current date
+      document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric'
+      });
+
+      // 1. Hero
+      document.getElementById('hub-title').innerText = hubData.title;
+      document.getElementById('hub-desc').innerText = hubData.description;
+
+      const statusColors = {
+        "Check-in Due": "bg-amber-500/20 text-amber-200 border-amber-500/40",
+        "Completed": "bg-emerald-500/20 text-emerald-200 border-emerald-500/40"
+      };
+      const statusClass = statusColors[hubData.status] || statusColors["Check-in Due"];
+      document.getElementById('hub-status-container').innerHTML = `
+        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${statusClass}">
+          ${hubData.status}
+        </span>
+      `;
+
+      // 2. Metrics
+      const metricsHtml = hubData.metrics.map(m => `
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <p class="text-xs text-slate-400 uppercase tracking-wide">${m.label}</p>
+          <p class="text-2xl font-bold ${m.color} mt-1">${m.value}</p>
+        </div>
+      `).join('');
+      document.getElementById('key-metrics').innerHTML = metricsHtml;
+
+      // 3. Mood Selector
+      const moodSelectorHtml = `
+        <p class="text-sm text-slate-400 mb-4">How are you feeling right now?</p>
+        <div class="flex flex-wrap gap-3 justify-center mb-4">
+          ${hubData.moods.map(m => `
+            <button class="flex flex-col items-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-rose-500/50 hover:bg-slate-800 transition group">
+              <span class="text-4xl mb-2 group-hover:scale-110 transition-transform">${m.emoji}</span>
+              <span class="text-xs text-slate-400 group-hover:text-white">${m.label}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="mt-4">
+          <label class="text-sm text-slate-400 mb-2 block">Add a note (optional)</label>
+          <textarea class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-500" rows="2" placeholder="What's on your mind today?"></textarea>
+          <button class="mt-3 w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-4 rounded-lg transition">
+            Save Check-in
+          </button>
+        </div>
+      `;
+      document.getElementById('mood-selector').innerHTML = moodSelectorHtml;
+
+      // 4. Mood History
+      const maxMood = 10;
+      const moodHistoryHtml = `
+        <div class="flex items-end justify-between gap-1 h-32 mb-4">
+          ${hubData.moodHistory.map(d => `
+            <div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer" title="${d.date}: ${d.note}">
+              <div class="w-full rounded-t relative transition-all group-hover:opacity-80" style="height: ${(d.mood / maxMood) * 100}%">
+                <div class="absolute inset-0 ${getMoodColor(d.mood)} rounded-t"></div>
+              </div>
+              <span class="text-[8px] text-slate-600 group-hover:text-slate-400">${d.date.split(' ')[1]}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-500">
+          <span>2 weeks ago</span>
+          <span>Today</span>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+          <div class="bg-slate-800/50 rounded-lg p-3">
+            <p class="text-lg font-bold text-white">7.2</p>
+            <p class="text-[10px] text-slate-500">Avg Mood</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+            <p class="text-lg font-bold text-emerald-400">8</p>
+            <p class="text-[10px] text-slate-500">Highest</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+            <p class="text-lg font-bold text-amber-400">5</p>
+            <p class="text-[10px] text-slate-500">Lowest</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('mood-history').innerHTML = moodHistoryHtml;
+
+      // 5. Journal Entries
+      const journalHtml = hubData.journalEntries.map(e => `
+        <div class="bg-slate-900/40 rounded-xl p-4 border border-slate-800 hover:border-rose-500/30 transition cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="text-sm font-semibold text-white">${e.title}</h3>
+              <p class="text-[11px] text-slate-500">${e.date}</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">${e.mood}</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-3 line-clamp-2">${e.preview}</p>
+          <div class="flex gap-2">
+            ${e.tags.map(t => `<span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">#${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('journal-entries').innerHTML = journalHtml;
+
+      // 6. Triggers & Patterns
+      const triggersHtml = `
+        <div>
+          <h4 class="text-sm font-medium text-slate-300 mb-3">Common Triggers</h4>
+          <div class="space-y-2">
+            ${hubData.triggers.map(t => `
+              <div class="flex items-center justify-between p-2 rounded bg-slate-800/50">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full ${t.impact === 'positive' ? 'bg-emerald-500' : 'bg-red-500'}"></div>
+                  <span class="text-sm text-slate-300">${t.name}</span>
+                </div>
+                <span class="text-xs text-slate-500">${t.occurrences}x</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-slate-300 mb-3">Insights</h4>
+          <div class="space-y-2">
+            ${hubData.patterns.map(p => `
+              <div class="flex items-start gap-2 p-2 rounded ${p.type === 'positive' ? 'bg-emerald-500/10' : 'bg-amber-500/10'}">
+                <i data-feather="${p.type === 'positive' ? 'trending-up' : 'alert-triangle'}" class="w-4 h-4 ${p.type === 'positive' ? 'text-emerald-400' : 'text-amber-400'} mt-0.5"></i>
+                <span class="text-xs text-slate-300">${p.insight}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      document.getElementById('triggers-patterns').innerHTML = triggersHtml;
+
+      // 7. Wellness Streaks
+      const streaksHtml = hubData.wellnessStreaks.map(s => `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+              <i data-feather="${s.icon}" class="w-4 h-4 ${s.color}"></i>
+            </div>
+            <div>
+              <p class="text-sm text-slate-300">${s.name}</p>
+              <p class="text-[10px] text-slate-500">Best: ${s.best} days</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-lg font-bold ${s.color}">${s.current}</p>
+            <p class="text-[10px] text-slate-500">days</p>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('wellness-streaks').innerHTML = streaksHtml;
+
+      // 8. Self-Care Checklist
+      const selfCareHtml = hubData.selfCare.map(item => `
+        <label class="flex items-center gap-3 p-2 rounded hover:bg-slate-800/50 cursor-pointer group">
+          <input type="checkbox" ${item.done ? 'checked' : ''} class="w-4 h-4 bg-slate-800 border-slate-600 rounded text-rose-500 focus:ring-rose-500 focus:ring-offset-slate-900">
+          <span class="text-sm ${item.done ? 'text-slate-500 line-through' : 'text-slate-300'}">${item.task}</span>
+        </label>
+      `).join('');
+      const completedCount = hubData.selfCare.filter(i => i.done).length;
+      const selfCareProgress = `
+        <div class="mb-4">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-400">Today's Progress</span>
+            <span class="text-slate-300">${completedCount}/${hubData.selfCare.length}</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2">
+            <div class="bg-indigo-500 h-2 rounded-full transition-all" style="width: ${(completedCount / hubData.selfCare.length) * 100}%"></div>
+          </div>
+        </div>
+      `;
+      document.getElementById('self-care-checklist').innerHTML = selfCareProgress + selfCareHtml;
+
+      // 9. Mindfulness Resources
+      const mindfulnessHtml = hubData.mindfulness.map(m => `
+        <button class="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 hover:bg-slate-800 transition group">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+              <i data-feather="play" class="w-3 h-3 text-purple-400"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-sm text-slate-300 group-hover:text-white">${m.name}</p>
+              <p class="text-[10px] text-slate-500">${m.type} · ${m.duration}</p>
+            </div>
+          </div>
+          <i data-feather="chevron-right" class="w-4 h-4 text-slate-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-transform"></i>
+        </button>
+      `).join('');
+      document.getElementById('mindfulness-resources').innerHTML = mindfulnessHtml;
+
+      // 10. Gratitude List
+      const gratitudeHtml = `
+        <div class="space-y-2 mb-4">
+          ${hubData.gratitude.map((g, i) => `
+            <div class="flex items-center gap-2 p-2 bg-slate-800/50 rounded-lg">
+              <span class="text-amber-400">${i + 1}.</span>
+              <span class="text-sm text-slate-300">${g}</span>
+            </div>
+          `).join('')}
+        </div>
+        <button class="w-full flex items-center justify-center gap-2 p-2 rounded-lg border border-dashed border-slate-700 text-slate-500 hover:border-amber-500/50 hover:text-amber-400 transition">
+          <i data-feather="plus" class="w-4 h-4"></i>
+          <span class="text-sm">Add gratitude</span>
+        </button>
+      `;
+      document.getElementById('gratitude-list').innerHTML = gratitudeHtml;
+
+      // Init Icons
+      if (window.feather) feather.replace();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderPage);
   </script>
 </body>
 </html>

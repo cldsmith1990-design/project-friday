@@ -6,44 +6,391 @@
   <title>Finance Hub – Transaction Control</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="shared-utils.js"></script>
   <style>
     html { scroll-behavior: smooth; }
     :focus-visible { outline: 2px solid #6366f1; outline-offset: 4px; }
+    body:not(:defined) { opacity: 0; transition: opacity 0.2s ease-in; }
+
+    .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white">
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white opacity-100 transition-opacity duration-300">
+
   <nav class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur border-b border-slate-800">
     <div class="container mx-auto px-4 py-3 max-w-6xl flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition group">
         <i data-feather="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
         <span>Back to Dashboard</span>
       </a>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <p class="text-xs font-mono text-slate-400 uppercase">Bank Sync: Active</p>
+      </div>
     </div>
   </nav>
 
   <main class="container mx-auto px-4 py-8 max-w-6xl">
-    <header class="mb-8">
-      <div class="flex items-center gap-2 text-emerald-400 mb-2">
-        <i data-feather="dollar-sign" class="w-5 h-5"></i>
-        <p class="text-xs font-semibold tracking-wide uppercase">Finance Operations Hub</p>
+
+    <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-emerald-400">
+          <i data-feather="dollar-sign" class="w-5 h-5"></i>
+          <p class="text-xs font-semibold tracking-wide uppercase">Finance Operations Hub</p>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50" id="hub-title"></h1>
+        <p class="text-sm text-slate-300 max-w-2xl" id="hub-desc"></p>
       </div>
-      <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50 mb-2">Finance Hub</h1>
-      <p class="text-sm text-slate-300">Transaction tracking, bill management, and debt strategy control.</p>
+      <div id="hub-status-container"></div>
     </header>
 
-    <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-12 text-center">
-      <i data-feather="tool" class="w-16 h-16 mx-auto mb-4 text-slate-600"></i>
-      <h2 class="text-2xl font-bold text-slate-400 mb-2">Under Construction</h2>
-      <p class="text-slate-500">Finance Hub interface coming soon.</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="key-metrics"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <section class="lg:col-span-2 space-y-6">
+
+        <!-- Recent Transactions -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 flex flex-col overflow-hidden">
+          <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-emerald-300 flex items-center gap-2">
+              <i data-feather="list"></i>
+              <span>Recent Transactions</span>
+            </h2>
+            <button class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded transition flex items-center gap-1">
+              <i data-feather="plus" class="w-3 h-3"></i> Add Transaction
+            </button>
+          </div>
+
+          <div class="overflow-x-auto custom-scrollbar p-0">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-slate-950 text-xs uppercase text-slate-400">
+                <tr>
+                  <th class="px-6 py-3 font-medium tracking-wider">Date</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Description</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Category</th>
+                  <th class="px-6 py-3 font-medium tracking-wider">Amount</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm divide-y divide-slate-800" id="transactions-body"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- Bill Tracker -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-emerald-300 flex items-center gap-2">
+              <i data-feather="file-text"></i>
+              <span>Upcoming Bills</span>
+            </h2>
+            <span class="text-xs text-slate-400">Next 30 days</span>
+          </div>
+          <div class="space-y-3" id="bills-list"></div>
+        </article>
+
+        <!-- Budget Categories -->
+        <article class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+            <i data-feather="pie-chart"></i>
+            <span>Budget Categories</span>
+          </h2>
+          <div class="space-y-4" id="budget-categories"></div>
+        </article>
+
+      </section>
+
+      <aside class="space-y-6">
+
+        <!-- Monthly Summary -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-emerald-300 mb-4 flex items-center gap-2">
+            <i data-feather="trending-up"></i>
+            <span>Monthly Summary</span>
+          </h2>
+          <div class="space-y-4" id="monthly-summary"></div>
+        </div>
+
+        <!-- Debt Payoff Progress -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-amber-300 mb-4 flex items-center gap-2">
+            <i data-feather="trending-down"></i>
+            <span>Debt Payoff Progress</span>
+          </h2>
+          <div class="space-y-4" id="debt-tracker"></div>
+        </div>
+
+        <!-- Savings Goals -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="target"></i>
+            <span>Savings Goals</span>
+          </h2>
+          <div class="space-y-4" id="savings-goals"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-slate-900/80 backdrop-blur rounded-2xl shadow-lg border border-slate-800 p-6">
+          <h2 class="text-lg font-bold text-indigo-300 mb-4 flex items-center gap-2">
+            <i data-feather="zap"></i>
+            <span>Quick Actions</span>
+          </h2>
+          <div class="flex flex-col gap-2" id="quick-actions"></div>
+        </div>
+
+      </aside>
     </div>
   </main>
 
   <footer class="mt-8 border-t border-slate-800 bg-slate-950/80 py-6 text-center">
-    <p class="text-[11px] text-slate-500">Project Friday System · Finance Hub</p>
+    <p class="text-[11px] text-slate-500">Project Friday System · Finance Hub v1.0</p>
   </footer>
 
   <script>
-    if (window.feather) feather.replace();
+    // ==========================================
+    // DATA SECTION - FINANCE HUB
+    // ==========================================
+
+    const hubData = {
+      title: "Finance Hub",
+      description: "Transaction tracking, bill management, budget monitoring, and debt payoff strategy control center.",
+      status: "Synced",
+
+      metrics: [
+        { label: "Total Balance", value: "$4,287.50", color: "text-emerald-300" },
+        { label: "Monthly Income", value: "$5,200", color: "text-white" },
+        { label: "Monthly Expenses", value: "$3,847", color: "text-amber-300" },
+        { label: "Savings Rate", value: "26%", color: "text-indigo-300" }
+      ],
+
+      transactions: [
+        { date: "Dec 5", description: "Walmart - Groceries", category: "Food", amount: -127.43, type: "expense" },
+        { date: "Dec 4", description: "Shell Gas Station", category: "Transportation", amount: -48.50, type: "expense" },
+        { date: "Dec 3", description: "Direct Deposit - Payroll", category: "Income", amount: 2600.00, type: "income" },
+        { date: "Dec 2", description: "Netflix Subscription", category: "Entertainment", amount: -15.99, type: "expense" },
+        { date: "Dec 1", description: "Duke Energy - Electric", category: "Utilities", amount: -142.00, type: "expense" },
+        { date: "Nov 30", description: "Amazon - Kids Supplies", category: "Shopping", amount: -67.88, type: "expense" },
+        { date: "Nov 29", description: "Venmo - Child Support Received", category: "Income", amount: 450.00, type: "income" }
+      ],
+
+      bills: [
+        { name: "Rent / Mortgage", amount: 1200, dueDate: "Dec 15", status: "upcoming", autopay: true },
+        { name: "Car Insurance", amount: 156, dueDate: "Dec 12", status: "upcoming", autopay: true },
+        { name: "Internet - Spectrum", amount: 79.99, dueDate: "Dec 18", status: "upcoming", autopay: false },
+        { name: "Phone - T-Mobile", amount: 85, dueDate: "Dec 22", status: "upcoming", autopay: true },
+        { name: "Water Bill", amount: 45, dueDate: "Dec 28", status: "upcoming", autopay: false },
+        { name: "Credit Card Min", amount: 125, dueDate: "Dec 10", status: "due-soon", autopay: false }
+      ],
+
+      budgetCategories: [
+        { name: "Housing", budgeted: 1400, spent: 1200, color: "bg-blue-500" },
+        { name: "Food & Groceries", budgeted: 600, spent: 487, color: "bg-emerald-500" },
+        { name: "Transportation", budgeted: 400, spent: 312, color: "bg-amber-500" },
+        { name: "Utilities", budgeted: 300, spent: 267, color: "bg-purple-500" },
+        { name: "Entertainment", budgeted: 150, spent: 89, color: "bg-pink-500" },
+        { name: "Kids Activities", budgeted: 200, spent: 175, color: "bg-indigo-500" }
+      ],
+
+      monthlySummary: {
+        income: 5200,
+        expenses: 3847,
+        savings: 1353,
+        projected: 1500
+      },
+
+      debts: [
+        { name: "Credit Card (Chase)", balance: 3420, limit: 5000, apr: 22.9, minPayment: 125, color: "bg-red-500" },
+        { name: "Car Loan", balance: 8750, original: 15000, apr: 6.5, minPayment: 289, color: "bg-amber-500" },
+        { name: "Student Loan", balance: 12400, original: 25000, apr: 4.5, minPayment: 145, color: "bg-blue-500" }
+      ],
+
+      savingsGoals: [
+        { name: "Emergency Fund", current: 2500, target: 10000, color: "bg-emerald-500" },
+        { name: "Christmas Gifts", current: 350, target: 500, color: "bg-red-500" },
+        { name: "Kids College", current: 1200, target: 50000, color: "bg-indigo-500" }
+      ],
+
+      quickActions: [
+        { text: "Add Transaction", icon: "plus-circle" },
+        { text: "Pay Bills", icon: "credit-card" },
+        { text: "Transfer Money", icon: "repeat" },
+        { text: "Export Report", icon: "download" }
+      ]
+    };
+
+    // ==========================================
+    // RENDER LOGIC
+    // ==========================================
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    }
+
+    function renderPage() {
+      // 1. Hero
+      document.getElementById('hub-title').innerText = hubData.title;
+      document.getElementById('hub-desc').innerText = hubData.description;
+
+      const statusColors = {
+        "Synced": "bg-emerald-500/20 text-emerald-200 border-emerald-500/40",
+        "Pending": "bg-amber-500/20 text-amber-200 border-amber-500/40"
+      };
+      const statusClass = statusColors[hubData.status] || statusColors["Synced"];
+      document.getElementById('hub-status-container').innerHTML = `
+        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${statusClass}">
+          Status: ${hubData.status}
+        </span>
+      `;
+
+      // 2. Metrics
+      const metricsHtml = hubData.metrics.map(m => `
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+          <p class="text-xs text-slate-400 uppercase tracking-wide">${m.label}</p>
+          <p class="text-2xl font-bold ${m.color} mt-1">${m.value}</p>
+        </div>
+      `).join('');
+      document.getElementById('key-metrics').innerHTML = metricsHtml;
+
+      // 3. Transactions Table
+      const transactionsHtml = hubData.transactions.map(t => `
+        <tr class="hover:bg-slate-900/50 transition">
+          <td class="px-6 py-4 text-xs text-slate-400">${t.date}</td>
+          <td class="px-6 py-4 font-medium text-white">${t.description}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider bg-slate-700/50 text-slate-300">
+              ${t.category}
+            </span>
+          </td>
+          <td class="px-6 py-4 font-mono font-bold ${t.type === 'income' ? 'text-emerald-400' : 'text-red-400'}">
+            ${t.type === 'income' ? '+' : ''}${formatCurrency(t.amount)}
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('transactions-body').innerHTML = transactionsHtml;
+
+      // 4. Bills List
+      const billsHtml = hubData.bills.map(b => {
+        const statusColor = b.status === 'due-soon' ? 'text-amber-400' : 'text-slate-400';
+        const statusBg = b.status === 'due-soon' ? 'bg-amber-500/20 border-amber-500/40' : 'bg-slate-900/40 border-slate-800';
+        return `
+          <div class="flex items-center justify-between p-3 rounded-lg ${statusBg} border">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full ${b.status === 'due-soon' ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'}"></div>
+              <div>
+                <p class="text-sm font-medium text-slate-200">${b.name}</p>
+                <p class="text-[11px] ${statusColor}">Due: ${b.dueDate} ${b.autopay ? '· Autopay' : ''}</p>
+              </div>
+            </div>
+            <span class="text-sm font-bold text-white">${formatCurrency(b.amount)}</span>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('bills-list').innerHTML = billsHtml;
+
+      // 5. Budget Categories
+      const budgetHtml = hubData.budgetCategories.map(c => {
+        const percent = Math.min((c.spent / c.budgeted) * 100, 100);
+        const remaining = c.budgeted - c.spent;
+        const overBudget = remaining < 0;
+        return `
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-300">${c.name}</span>
+              <span class="${overBudget ? 'text-red-400' : 'text-slate-400'}">${formatCurrency(c.spent)} / ${formatCurrency(c.budgeted)}</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2">
+              <div class="${c.color} h-2 rounded-full transition-all" style="width: ${percent}%"></div>
+            </div>
+            <p class="text-[10px] mt-1 ${overBudget ? 'text-red-400' : 'text-emerald-400'}">
+              ${overBudget ? 'Over by ' + formatCurrency(Math.abs(remaining)) : formatCurrency(remaining) + ' remaining'}
+            </p>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('budget-categories').innerHTML = budgetHtml;
+
+      // 6. Monthly Summary
+      const summary = hubData.monthlySummary;
+      const summaryHtml = `
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Total Income</span>
+            <span class="text-sm font-bold text-emerald-400">+${formatCurrency(summary.income)}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Total Expenses</span>
+            <span class="text-sm font-bold text-red-400">-${formatCurrency(summary.expenses)}</span>
+          </div>
+          <div class="border-t border-slate-700 pt-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-slate-300 font-medium">Net Savings</span>
+              <span class="text-lg font-bold text-white">${formatCurrency(summary.savings)}</span>
+            </div>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3 mt-2">
+            <p class="text-[11px] text-slate-400">Projected End of Month</p>
+            <p class="text-lg font-bold text-indigo-300">${formatCurrency(summary.projected)}</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('monthly-summary').innerHTML = summaryHtml;
+
+      // 7. Debt Tracker
+      const debtHtml = hubData.debts.map(d => {
+        const percentPaid = d.original ? ((d.original - d.balance) / d.original) * 100 : ((d.limit - d.balance) / d.limit) * 100;
+        return `
+          <div class="bg-slate-900/40 rounded-lg p-3 border border-slate-800">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <p class="text-sm font-medium text-slate-200">${d.name}</p>
+                <p class="text-[10px] text-slate-500">${d.apr}% APR · Min: ${formatCurrency(d.minPayment)}/mo</p>
+              </div>
+              <span class="text-sm font-bold text-red-400">${formatCurrency(d.balance)}</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5">
+              <div class="${d.color} h-1.5 rounded-full" style="width: ${percentPaid}%"></div>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-1">${percentPaid.toFixed(0)}% paid off</p>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('debt-tracker').innerHTML = debtHtml;
+
+      // 8. Savings Goals
+      const savingsHtml = hubData.savingsGoals.map(g => {
+        const percent = (g.current / g.target) * 100;
+        return `
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-300">${g.name}</span>
+              <span class="text-slate-400">${formatCurrency(g.current)} / ${formatCurrency(g.target)}</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2">
+              <div class="${g.color} h-2 rounded-full" style="width: ${Math.min(percent, 100)}%"></div>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-1">${percent.toFixed(1)}% complete</p>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('savings-goals').innerHTML = savingsHtml;
+
+      // 9. Quick Actions
+      const actionsHtml = hubData.quickActions.map(a => `
+        <button class="flex items-center gap-2 p-3 rounded bg-slate-900/40 border border-slate-800 hover:bg-slate-800 transition text-sm text-slate-300 hover:text-emerald-300 group">
+          <i data-feather="${a.icon}" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+          <span>${a.text}</span>
+        </button>
+      `).join('');
+      document.getElementById('quick-actions').innerHTML = actionsHtml;
+
+      // Init Icons
+      if (window.feather) feather.replace();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderPage);
   </script>
 </body>
 </html>
